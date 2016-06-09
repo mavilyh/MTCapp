@@ -1,8 +1,8 @@
 package com.ladt.mtc;
 
+import android.support.v7.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import android.content.Intent;
@@ -12,6 +12,24 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import butterknife.ButterKnife;
 import butterknife.*;
 
@@ -19,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static String Username;
+    private HashMap<String, String> session =new HashMap<String, String>();
 
     @BindView(R.id.input_username)
     EditText _usernameText;
@@ -59,7 +78,6 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!validate()) {
             onLoginFailed();
-            return;
         }
 
         _loginButton.setEnabled(false);
@@ -73,13 +91,85 @@ public class LoginActivity extends AppCompatActivity {
         String username = _usernameText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (username.equals("admin")&&password.equals("1234")) {
-          //  Toast.makeText(getApplicationContext(), "Redirecting...",Toast.LENGTH_SHORT).show();
-            onLoginSuccess();
-            setUsername(username);
-        }else {
-            onLoginFailed();
+        DefaultHttpClient mHttpClient = new DefaultHttpClient();
+        HttpPost mPost = new HttpPost("http://10.43.6.254:8888/web/php/login.php");
+
+        List<BasicNameValuePair> pairs = new ArrayList<BasicNameValuePair>();
+        pairs.add(new BasicNameValuePair("username", username));
+        pairs.add(new BasicNameValuePair("password", password));
+
+        try {
+            mPost.setEntity(new UrlEncodedFormEntity(pairs, HTTP.UTF_8));
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
+        try {
+            HttpResponse response = mHttpClient.execute(mPost);
+            int res = response.getStatusLine().getStatusCode();
+
+            if (res == 200) {
+                HttpEntity entity = response.getEntity();
+
+                if (entity != null) {
+                    String info = EntityUtils.toString(entity);
+                    System.out.println("info-----------"+info);
+                    //以下主要是对服务器端返回的数据进行解析
+
+                    JSONObject jsonObject=null;
+                    //flag为登录成功与否的标记,从服务器端返回的数据
+                    String flag="";
+                    String name="";
+                    String userid="";
+                    String sessionid="";
+                    try {
+                        jsonObject = new JSONObject(info);
+                        flag = jsonObject.getString("flag");
+                        name = jsonObject.getString("name");
+                        userid = jsonObject.getString("userid");
+                        sessionid = jsonObject.getString("sessionid");
+
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    //根据服务器端返回的标记,判断服务端端验证是否成功
+
+                    if(flag.equals("success")){
+                        //为session传递相应的值,用于在session过程中记录相关用户信息
+                        session.put("s_userid", userid);
+                        session.put("s_username", name);
+                        session.put("s_sessionid", sessionid);
+                        onLoginSuccess();
+                        setUsername(username);
+                    }
+                    else{
+                        onLoginFailed();
+                    }
+                }
+                else{
+
+                    onLoginFailed();
+                }
+
+            }
+
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // if (username.equals("admin")&&password.equals("1234")) {
+        //  Toast.makeText(getApplicationContext(), "Redirecting...",Toast.LENGTH_SHORT).show();
+        //     onLoginSuccess();
+        //     setUsername(username);
+        // }else {
+        //     onLoginFailed();
+        // }
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -112,6 +202,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
+        Toast.makeText(getBaseContext(), "Login success", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
     }
@@ -125,15 +216,15 @@ public class LoginActivity extends AppCompatActivity {
     public boolean validate() {
         boolean valid = true;
 
-      //  String email = _usernameText.getText().toString();
+        //  String email = _usernameText.getText().toString();
         String password = _passwordText.getText().toString();
 
-      //  if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-      //      _usernameText.setError("enter a valid email address");
-      //      valid = false;
-      //  } else {
-      //      _usernameText.setError(null);
-      //  }
+        //  if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        //      _usernameText.setError("enter a valid email address");
+        //      valid = false;
+        //  } else {
+        //      _usernameText.setError(null);
+        //  }
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
             _passwordText.setError("between 4 and 10 alphanumeric characters");
@@ -145,9 +236,12 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
-    public static String getUsername() { return Username; }
+    public static String getUsername() {
+        return Username;
+    }
 
-    public void setUsername(String Username) { this.Username = Username; }
-
+    public void setUsername(String Username) {
+        this.Username = Username;
+    }
 
 }
