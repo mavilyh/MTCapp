@@ -44,7 +44,8 @@ public class CodeBarreActivity extends AppCompatActivity {
         smallerDimension = smallerDimension * 3/4;
 
         //Encode with a QR Code image
-        qrInputText = LoginActivity.getUsername();
+        //qrInputText = LoginActivity.getUsername();
+        qrInputText = "Laurent";
         QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrInputText,
                 null,
                 Contents.Type.TEXT,

@@ -1,236 +1,310 @@
 package com.ladt.mtc;
 
-import android.os.AsyncTask;
-import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
-import android.app.ProgressDialog;
-import android.os.Bundle;
-import android.util.Log;
-
-import android.content.Intent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.UnsupportedEncodingException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import com.ladt.mtc.R;
 
-import butterknife.ButterKnife;
-import butterknife.*;
+public class LoginActivity extends Activity {
+    // Lien vers votre page php sur votre serveur
+    private static final String UPDATE_URL = "http://192.168.1.19:8888/AndroidFileUpload/auth.php";
 
-public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = "LoginActivity";
-    private static final int REQUEST_SIGNUP = 0;
-    private static String Username;
-    private HashMap<String, String> session =new HashMap<String, String>();
+    public ProgressDialog progressDialog;
 
-    @BindView(R.id.input_username)
-    EditText _usernameText;
-    @BindView(R.id.input_password)
-    EditText _passwordText;
-    @BindView(R.id.btn_login)
-    Button _loginButton;
-    @BindView(R.id.link_signup)
-    TextView _signupLink;
+    private EditText UserEditText;
 
-   /* StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+    private EditText PassEditText;
 
-    StrictMode.setThreadPolicy(policy); */
 
-    @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ButterKnife.bind(this);
 
-        Toast.makeText(getBaseContext(), "CREATION", Toast.LENGTH_LONG).show();
-
-        _loginButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new myTask().execute();
-                /*Thread thread = new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            login();
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                thread.start();*/
-
-
-                //login();
-            }
-        });
-
-        _signupLink.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // Start the Signup activity
-                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
-                startActivityForResult(intent, REQUEST_SIGNUP);
-            }
-        });
-    }
-     private class myTask extends AsyncTask<Void, Void, String>{
-        @Override
-        protected String doInBackground(Void... params){
-            Toast.makeText(getBaseContext(), "DO IN BACKGROUND", Toast.LENGTH_LONG).show();
-            //login();
-            Toast.makeText(getBaseContext(), "BRAVO VOUS AVEZ CLIQUE", Toast.LENGTH_LONG).show();
-
-            if (!validate()) {
-                onLoginFailed();
-            }
-
-            _loginButton.setEnabled(false);
-
-        /*final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme);
+        // initialisation d'une progress bar
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Please wait...");
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();*/
+        progressDialog.setCancelable(false);
+        // Récupération des éléments de la vue définis dans le xml
+        UserEditText = (EditText) findViewById(R.id.username);
 
-            String username = _usernameText.getText().toString();
-            String password = _passwordText.getText().toString();
+        PassEditText = (EditText) findViewById(R.id.password);
+        Button button = (Button) findViewById(R.id.okbutton);
 
-            DefaultHttpClient mHttpClient = new DefaultHttpClient();
-            HttpPost mPost = new HttpPost("http://10.43.6.254:8888/web/php/login.php");
+        // Définition du listener du bouton
+        button.setOnClickListener(new View.OnClickListener() {
 
-            List<BasicNameValuePair> pairs = new ArrayList<BasicNameValuePair>();
-            pairs.add(new BasicNameValuePair("username", username));
-            pairs.add(new BasicNameValuePair("password", password));
+            public void onClick(View v) {
 
-            try {
-                mPost.setEntity(new UrlEncodedFormEntity(pairs, HTTP.UTF_8));
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                int usersize = UserEditText.getText().length();
+
+                int passsize = PassEditText.getText().length();
+                // si les deux champs sont remplis
+                if (usersize > 0 && passsize > 0) {
+
+                    progressDialog.show();
+
+                    String user = UserEditText.getText().toString();
+
+                    String pass = PassEditText.getText().toString();
+                    // On appelle la fonction doLogin qui va communiquer avec le PHP
+                    doLogin(user, pass);
+
+                } else
+                    createDialog("Error", "Please enter Username and Password");
+
             }
 
-            try {
-                HttpResponse response = mHttpClient.execute(mPost);
-                int res = response.getStatusLine().getStatusCode();
+        });
 
-                if (res == 200) {
-                    HttpEntity entity = response.getEntity();
+        //button = (Button) findViewById(R.id.cancelbutton);
+        // Création du listener du bouton cancel (on sort de l'appli)
+        button.setOnClickListener(new View.OnClickListener() {
 
-                    if (entity != null) {
-                        String info = EntityUtils.toString(entity);
-                        System.out.println("info-----------"+info);
-                        //以下主要是对服务器端返回的数据进行解析
+            public void onClick(View v) {
+                quit(false, null);
+            }
 
-                        JSONObject jsonObject=null;
-                        //flag为登录成功与否的标记,从服务器端返回的数据
-                        String flag="";
-                        String name="";
-                        String userid="";
-                        String sessionid="";
-                        try {
-                            jsonObject = new JSONObject(info);
-                            flag = jsonObject.getString("flag");
-                            name = jsonObject.getString("name");
-                            userid = jsonObject.getString("userid");
-                            sessionid = jsonObject.getString("sessionid");
+        });
 
-                        } catch (JSONException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        //根据服务器端返回的标记,判断服务端端验证是否成功
+    }
 
-                        if(flag.equals("success")){
-                            //为session传递相应的值,用于在session过程中记录相关用户信息
-                            session.put("s_userid", userid);
-                            session.put("s_username", name);
-                            session.put("s_sessionid", sessionid);
-                            onLoginSuccess();
-                            setUsername(username);
-                        }
-                        else{
-                            onLoginFailed();
-                        }
-                    }
-                    else{
+    private void quit(boolean success, Intent i) {
+        // On envoie un résultat qui va permettre de quitter l'appli
+        setResult((success) ? Activity.RESULT_OK : Activity.RESULT_CANCELED, i);
+        finish();
 
-                        onLoginFailed();
-                    }
+    }
+
+    private void createDialog(String title, String text) {
+        // Création d'une popup affichant un message
+        AlertDialog ad = new AlertDialog.Builder(this)
+                .setPositiveButton("Ok", null).setTitle(title).setMessage(text)
+                .create();
+        ad.show();
+
+    }
+
+    private void doLogin(final String login, final String pass) {
+
+        final String pw = md5(pass);
+        // Création d'un thread
+        Thread t = new Thread() {
+
+            public void run() {
+
+                Looper.prepare();
+                // On se connecte au serveur afin de communiquer avec le PHP
+                DefaultHttpClient client = new DefaultHttpClient();
+                HttpConnectionParams.setConnectionTimeout(client.getParams(), 15000);
+
+                HttpResponse response;
+                HttpEntity entity;
+
+                try {
+                    // On établit un lien avec le script PHP
+                    HttpPost post = new HttpPost(UPDATE_URL);
+
+                    List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+
+                    nvps.add(new BasicNameValuePair("username", login));
+
+                    nvps.add(new BasicNameValuePair("password", pw));
+
+                    post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+                    // On passe les paramètres login et password qui vont être récupérés
+                    // par le script PHP en post
+                    post.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+                    // On récupère le résultat du script
+                    response = client.execute(post);
+
+                    entity = response.getEntity();
+
+                    InputStream is = entity.getContent();
+                    // On appelle une fonction définie plus bas pour traduire la réponse
+                    read(is);
+                    is.close();
+
+                    if (entity != null)
+                        entity.consumeContent();
+
+                } catch (Exception e) {
+
+                    progressDialog.dismiss();
+                    createDialog("Error", "Couldn't establish a connection");
 
                 }
 
-            } catch (ClientProtocolException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Looper.loop();
+
             }
 
-            // if (username.equals("admin")&&password.equals("1234")) {
-            //  Toast.makeText(getApplicationContext(), "Redirecting...",Toast.LENGTH_SHORT).show();
-            //     onLoginSuccess();
-            //     setUsername(username);
-            // }else {
-            //     onLoginFailed();
-            // }
+        };
 
-            new android.os.Handler().postDelayed(
-                    new Runnable() {
-                        public void run() {
-                            final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                                    R.style.AppTheme);
-                            // On complete call either onLoginSuccess or onLoginFailed
-                            onLoginSuccess();
-                            // onLoginFailed();
-                            progressDialog.dismiss();
-                        }
-                    }, 3000);
+        t.start();
 
-            return "OK";
-        }
-         @Override
-         protected void onProgressUpdate(Void... progress){
-             super.onProgressUpdate();
-             final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                     R.style.AppTheme);
-             progressDialog.setIndeterminate(true);
-             progressDialog.setMessage("Authenticating...");
-             progressDialog.show();
-         }
-
-         /*@Override
-         protected void onPostExecute(String result){
-             super.onPostExecute(result);
-         }*/
     }
+
+    private void read(InputStream in) {
+        // On traduit le résultat d'un flux
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+
+        SAXParser sp;
+
+        try {
+
+            sp = spf.newSAXParser();
+
+            XMLReader xr = sp.getXMLReader();
+            // Cette classe est définie plus bas
+            LoginContentHandler uch = new LoginContentHandler();
+
+            xr.setContentHandler(uch);
+
+            xr.parse(new InputSource(in));
+
+        } catch (ParserConfigurationException e) {
+
+        } catch (SAXException e) {
+
+        } catch (IOException e) {
+        }
+
+    }
+
+    private String md5(String in) {
+
+        MessageDigest digest;
+
+        try {
+
+            digest = MessageDigest.getInstance("MD5");
+
+            digest.reset();
+
+            digest.update(in.getBytes());
+
+            byte[] a = digest.digest();
+
+            int len = a.length;
+
+            StringBuilder sb = new StringBuilder(len << 1);
+
+            for (int i = 0; i < len; i++) {
+
+                sb.append(Character.forDigit((a[i] & 0xf0) >> 4, 16));
+
+                sb.append(Character.forDigit(a[i] & 0x0f, 16));
+
+            }
+
+            return sb.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    private class LoginContentHandler extends DefaultHandler {
+        // Classe traitant le message de retour du script PHP
+        private boolean in_loginTag = false;
+        private int userID;
+        private boolean error_occured = false;
+
+        public void startElement(String n, String l, String q, Attributes a)
+
+                throws SAXException
+
+        {
+
+            if (Objects.equals(l, "login"))
+                in_loginTag = true;
+            if (Objects.equals(l, "error")) {
+
+                progressDialog.dismiss();
+
+                switch (Integer.parseInt(a.getValue("value"))) {
+                    case 1:
+                        createDialog("Error", "Couldn't connect to Database");
+                        break;
+                    case 2:
+                        createDialog("Error", "Error in Database: Table missing");
+                        break;
+                    case 3:
+                        createDialog("Error", "Invalid username and/or password");
+                        break;
+                }
+                error_occured = true;
+
+            }
+
+            if (Objects.equals(l, "user") && in_loginTag && !Objects.equals(a.getValue("id"), ""))
+                // Dans le cas où tout se passe bien on récupère l'ID de l'utilisateur
+                userID = Integer.parseInt(a.getValue("id"));
+
+        }
+
+        public void endElement(String n, String l, String q) throws SAXException {
+            // on renvoie l'id si tout est ok
+            if (Objects.equals(l, "login")) {
+                in_loginTag = false;
+
+                if (!error_occured) {
+                    progressDialog.dismiss();
+                    Intent i = new Intent();
+                    i.putExtra("userid", userID);
+                    quit(true, i);
+                }
+            }
+        }
+
+        public void characters(char ch[], int start, int length) {
+        }
+
+        public void startDocument() throws SAXException {
+        }
+
+        public void endDocument() throws SAXException {
+        }
+
+    }
+
+}
 /*
     public void login() {
         //Log.d(TAG, "Login");
@@ -345,6 +419,7 @@ public class LoginActivity extends AppCompatActivity {
                 }, 3000);
     }
 */
+    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
@@ -407,4 +482,4 @@ public class LoginActivity extends AppCompatActivity {
         this.Username = Username;
     }
 
-}
+} */
