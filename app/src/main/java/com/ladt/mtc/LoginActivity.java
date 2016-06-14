@@ -38,7 +38,7 @@ import com.ladt.mtc.R;
 
 public class LoginActivity extends Activity {
     // Lien vers votre page php sur votre serveur
-    private static final String UPDATE_URL = "http://192.168.1.19:8888/AndroidFileUpload/auth.php";
+    private static final String UPDATE_URL = "http://10.43.4.183:8888/AndroidFileUpload/auth.php";
 
     public ProgressDialog progressDialog;
 

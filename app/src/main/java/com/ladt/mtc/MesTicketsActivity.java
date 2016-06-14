@@ -69,7 +69,7 @@ public class MesTicketsActivity extends Activity {
             try {
                 //StringBuffer result = new StringBuffer();
                 System.out.println("DOINBACKGROUND");
-                URL url = new URL("http://10.43.1.252:8888/AndroidFileUpload/imgList.php");
+                URL url = new URL("http://10.43.4.183:8888/AndroidFileUpload/imgList.php");
                 URLConnection conn = url.openConnection();
                 HttpURLConnection httpConn = (HttpURLConnection) conn;
                 httpConn.setRequestMethod("GET");
