@@ -1,6 +1,7 @@
 package com.ladt.mtc;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.VoiceInteractor;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -53,7 +54,7 @@ public class AffichageActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // capture picture
-                deleteTicket(str);
+                new deleteTicket().execute("http://10.43.1.252:8888/AndroidFileUpload/uploads/"+str);
             }
         });
     }
@@ -92,16 +93,29 @@ public class AffichageActivity extends Activity {
             }
         }
     }
-    public void deleteTicket (String str) {
+    private class deleteTicket extends AsyncTask <String, Void, String> {
         //TODO: requête de suppression du ticket à envoyer au serveur + code PHP pour gérer la requête
-        try {
-            URL url = new URL("http://10.43.1.252:8888/AndroidFileUpload/uploads/"+str);
-            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-            httpCon.setDoOutput(true);
-            httpCon.setRequestMethod("DELETE");
-            httpCon.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(getApplicationContext(), "Suppression...", Toast.LENGTH_SHORT).show();
         }
+
+        protected String doInBackground(String... args) {
+            String resp="";
+            try {
+                URL url = new URL("http://10.43.1.252:8888/AndroidFileUpload/uploads/" + args[0]);
+                HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+                httpCon.setDoOutput(true);
+                httpCon.setRequestMethod("DELETE");
+                httpCon.connect();
+                resp = httpCon.getResponseMessage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return resp;
+        }
+
     }
 }
