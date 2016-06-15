@@ -55,7 +55,6 @@ public class UploadActivity extends Activity {
         btnUpload = (Button) findViewById(R.id.btnUpload);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         imgPreview = (ImageView) findViewById(R.id.imgPreview);
-        vidPreview = (VideoView) findViewById(R.id.videoPreview);
 
         // Changing action bar background color
 		/* getActionBar().setBackgroundDrawable(
@@ -108,12 +107,6 @@ public class UploadActivity extends Activity {
             final Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
 
             imgPreview.setImageBitmap(bitmap);
-        } else {
-            imgPreview.setVisibility(View.GONE);
-            vidPreview.setVisibility(View.VISIBLE);
-            vidPreview.setVideoPath(filePath);
-            // start playing
-            vidPreview.start();
         }
     }
 

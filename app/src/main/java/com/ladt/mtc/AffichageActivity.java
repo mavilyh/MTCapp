@@ -12,7 +12,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ public class AffichageActivity extends Activity {
     List<String> tableauImages = new ArrayList<String>();
     private ListView maListViewPerso;
     //List<Bitmap> myBitmapList;
+    private Button deleteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,15 @@ public class AffichageActivity extends Activity {
 //ajout pour github
         new LoadImage().execute("http://10.43.1.252:8888/AndroidFileUpload/uploads/"+str);
 
+        deleteButton = (Button) findViewById(R.id.button_delete);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // capture picture
+                deleteTicket(str);
+            }
+        });
     }
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
@@ -78,6 +90,18 @@ public class AffichageActivity extends Activity {
                 Toast.makeText(AffichageActivity.this, "Image Does Not exist or Network Error", Toast.LENGTH_SHORT).show();
 
             }
+        }
+    }
+    public void deleteTicket (String str) {
+        //TODO: requête de suppression du ticket à envoyer au serveur + code PHP pour gérer la requête
+        try {
+            URL url = new URL("http://10.43.1.252:8888/AndroidFileUpload/uploads/"+str);
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("DELETE");
+            httpCon.connect();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

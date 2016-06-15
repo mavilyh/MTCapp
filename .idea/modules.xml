@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MTC-master.iml" filepath="$PROJECT_DIR$/MTC-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/MTCapp.iml" filepath="$PROJECT_DIR$/MTCapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MTCapp.iml" filepath="$PROJECT_DIR$/MTCapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

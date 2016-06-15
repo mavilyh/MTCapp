@@ -17,15 +17,6 @@
         android:visibility="gone"
         android:layout_marginTop="15dp"/>
 
-    <!-- Videoview to preview recorded video -->
-
-    <VideoView
-        android:id="@+id/videoPreview"
-        android:layout_width="fill_parent"
-        android:layout_height="400dp"
-        android:visibility="gone"
-        android:layout_marginTop="15dp"/>
-
     <TextView
         android:id="@+id/txtPercentage"
         android:layout_width="wrap_content"
