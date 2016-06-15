@@ -13,10 +13,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class AffichageActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // capture picture
-                new deleteTicket().execute("http://10.43.1.252:8888/AndroidFileUpload/uploads/"+str);
+                new deleteTicket().execute(str);
             }
         });
     }
@@ -93,7 +95,7 @@ public class AffichageActivity extends Activity {
             }
         }
     }
-    private class deleteTicket extends AsyncTask <String, Void, String> {
+    private class deleteTicket extends AsyncTask <String, Void, Void> {
         //TODO: requête de suppression du ticket à envoyer au serveur + code PHP pour gérer la requête
 
         @Override
@@ -102,19 +104,26 @@ public class AffichageActivity extends Activity {
             Toast.makeText(getApplicationContext(), "Suppression...", Toast.LENGTH_SHORT).show();
         }
 
-        protected String doInBackground(String... args) {
+        protected Void doInBackground(String... args) {
             String resp="";
             try {
-                URL url = new URL("http://10.43.1.252:8888/AndroidFileUpload/uploads/" + args[0]);
+                String serv= "http://10.43.1.252:8888/AndroidFileUpload/";
+                URL url = new URL(serv+"suppr.php");
                 HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
                 httpCon.setDoOutput(true);
-                httpCon.setRequestMethod("DELETE");
+                httpCon.setRequestMethod("POST");
                 httpCon.connect();
+                String postData = serv + "uploads/" + args[0];
+                httpCon.setRequestProperty("data", postData);
+                try( DataOutputStream wr = new DataOutputStream( httpCon.getOutputStream())) {
+                    wr.write( postData.getBytes( StandardCharsets.UTF_8 ) );
+                }
                 resp = httpCon.getResponseMessage();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return resp;
+            Toast.makeText(getApplicationContext(), resp, Toast.LENGTH_SHORT).show();
+            return null;
         }
 
     }
