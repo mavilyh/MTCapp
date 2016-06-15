@@ -40,7 +40,7 @@ public class MainLogin extends Activity
     {
         if(requestCode == RESULT_Main && resultCode == RESULT_CANCELED) {
             Toast.makeText(getBaseContext(), "ARF!", Toast.LENGTH_LONG).show();
-            //startup(data);
+            startup(data);
         }
         else {
             Toast.makeText(getBaseContext(), "BRAVO!", Toast.LENGTH_LONG).show();
