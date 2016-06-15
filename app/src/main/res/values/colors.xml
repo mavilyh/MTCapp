@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#E43F3F</color>
-    <color name="primary_dark">#E12929</color>
+    <color name="primary">#d3d9e9</color>
+    <color name="primary_dark">#8999C3</color>
     <color name="primary_darker">#CC1D1D</color>
     <color name="accent">#FFFFFF</color>
 
@@ -13,7 +13,7 @@
     <color name="aluminum">#999999</color>
     <color name="base">#AAAAAA</color>
     <color name="iron">#CCCCCC</color>
-    <color name="white">#FFFFFF</color>
+    <color name="white">#57647D</color>
 
     <color name="view_background">#e8ecfa</color>
     <color name="btn_bg">#277bec</color>

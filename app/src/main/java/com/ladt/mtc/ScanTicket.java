@@ -33,14 +33,12 @@ public class ScanTicket extends Activity {
 
     // Camera activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
 
     public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
 
     private Uri fileUri; // file url to store image/video
 
-    private Button btnCapturePicture, btnRecordVideo;
+    private Button btnCapturePicture;
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -79,7 +77,6 @@ public class ScanTicket extends Activity {
         // getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(getResources().getString(R.color.action_bar))));
 
         btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
-        btnRecordVideo = (Button) findViewById(R.id.btnRecordVideo);
 
         /**
          * Capture image button click event
@@ -90,18 +87,6 @@ public class ScanTicket extends Activity {
             public void onClick(View v) {
                 // capture picture
                 captureImage();
-            }
-        });
-
-        /**
-         * Record video button click event
-         */
-        btnRecordVideo.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // record video
-                recordVideo();
             }
         });
 
@@ -141,24 +126,6 @@ public class ScanTicket extends Activity {
 
         // start the image capture Intent
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-    }
-
-    /**
-     * Launching camera app to record video
-     */
-    private void recordVideo() {
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-
-        fileUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
-
-        // set video quality
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file
-        // name
-
-        // start the video capture Intent
-        startActivityForResult(intent, CAMERA_CAPTURE_VIDEO_REQUEST_CODE);
     }
 
     /**
@@ -210,27 +177,6 @@ public class ScanTicket extends Activity {
                         "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
                         .show();
             }
-
-        } else if (requestCode == CAMERA_CAPTURE_VIDEO_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-
-                // video successfully recorded
-                // launching upload activity
-                launchUploadActivity(false);
-
-            } else if (resultCode == RESULT_CANCELED) {
-
-                // user cancelled recording
-                Toast.makeText(getApplicationContext(),
-                        "User cancelled video recording", Toast.LENGTH_SHORT)
-                        .show();
-
-            } else {
-                // failed to record video
-                Toast.makeText(getApplicationContext(),
-                        "Sorry! Failed to record video", Toast.LENGTH_SHORT)
-                        .show();
-            }
         }
     }
 
@@ -274,15 +220,12 @@ public class ScanTicket extends Activity {
         }
 
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+        String timeStamp = new SimpleDateFormat("dd-MM-yyyy",
                 Locale.getDefault()).format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
-        } else if (type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "VID_" + timeStamp + ".mp4");
+                    + "Ticket_" + timeStamp + ".jpg");
         } else {
             return null;
         }

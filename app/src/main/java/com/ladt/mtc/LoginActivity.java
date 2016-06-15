@@ -34,6 +34,8 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
 import com.ladt.mtc.R;
 
 public class LoginActivity extends Activity {
@@ -45,6 +47,8 @@ public class LoginActivity extends Activity {
     private EditText UserEditText;
 
     private EditText PassEditText;
+
+    private static final int REQUEST_SIGNUP = 0;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class LoginActivity extends Activity {
 
         PassEditText = (EditText) findViewById(R.id.password);
         Button button = (Button) findViewById(R.id.okbutton);
+        TextView link = (TextView) findViewById(R.id.link_signup);
 
         // Définition du listener du bouton
         button.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +104,13 @@ public class LoginActivity extends Activity {
 
         });
 
+        link.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                // Start the Signup activity
+                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+                startActivityForResult(intent, REQUEST_SIGNUP);
+            }
+        });
     }
 
     private void quit(boolean success, Intent i) {

@@ -15,7 +15,9 @@
         android:layout_height="wrap_content"
         android:paddingTop="56dp"
         android:paddingLeft="24dp"
-        android:paddingRight="24dp">
+        android:paddingRight="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <!--<ImageView android:src="@drawable/photo"
             android:layout_width="wrap_content"

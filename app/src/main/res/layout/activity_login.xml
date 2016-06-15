@@ -7,6 +7,18 @@
     android:gravity="center">
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Bienvenue"
+        android:textColor="#57647D"
+        android:textSize="20sp"
+        android:textStyle="bold" >
+    </TextView>
+
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Username"
@@ -38,7 +50,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="218dp"
         android:gravity="bottom">
 
         <Button
@@ -54,6 +66,15 @@
             android:layout_height="wrap_content"
             android:text="Cancel"
             />
+
+        <TextView android:id="@+id/link_signup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:textColor="#57647D"
+            android:text="No account yet? Create one"
+            android:gravity="center"
+            android:textSize="16dip"/>
 
     </LinearLayout>
 
