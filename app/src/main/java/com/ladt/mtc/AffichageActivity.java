@@ -113,10 +113,12 @@ public class AffichageActivity extends Activity {
                 httpCon.setDoOutput(true);
                 httpCon.setRequestMethod("POST");
                 httpCon.connect();
-                String postData = serv + "uploads/" + args[0];
-                httpCon.setRequestProperty("data", postData);
+                httpCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                httpCon.setRequestProperty("data", args[0]);
                 try( DataOutputStream wr = new DataOutputStream( httpCon.getOutputStream())) {
-                    wr.write( postData.getBytes( StandardCharsets.UTF_8 ) );
+                    wr.write( ("data="+args[0]).getBytes( StandardCharsets.UTF_8 ) );
+                    wr.flush();
+                    wr.close();
                 }
                 resp = httpCon.getResponseMessage();
             } catch (IOException e) {
