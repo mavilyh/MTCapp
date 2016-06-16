@@ -5,6 +5,7 @@ import android.app.VoiceInteractor;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -13,14 +14,26 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class AffichageActivity extends Activity {
     Button load_img;
@@ -48,7 +61,7 @@ public class AffichageActivity extends Activity {
             }
         });*/
 //ajout pour github
-        new LoadImage().execute("http://10.43.1.252:8888/AndroidFileUpload/uploads/"+str);
+        new LoadImage().execute(Config.MY_IP+"uploads/"+str);
 
         deleteButton = (Button) findViewById(R.id.button_delete);
 
@@ -104,27 +117,79 @@ public class AffichageActivity extends Activity {
             Toast.makeText(getApplicationContext(), "Suppression...", Toast.LENGTH_SHORT).show();
         }
 
-        protected Void doInBackground(String... args) {
+         protected Void doInBackground(String... args) {
             String resp="";
             try {
-                String serv= "http://10.43.1.252:8888/AndroidFileUpload/";
-                URL url = new URL(serv+"suppr.php");
-                HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-                httpCon.setDoOutput(true);
-                httpCon.setRequestMethod("POST");
-                httpCon.connect();
-                String postData = serv + "uploads/" + args[0];
-                httpCon.setRequestProperty("data", postData);
-                try( DataOutputStream wr = new DataOutputStream( httpCon.getOutputStream())) {
+               /* URL url = new URL("http://192.168.1.19:8888/AndroidFileUpload/uploads/suppr.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded mime-type");
+                //List<NameValuePair> params = new ArrayList<NameValuePair>();
+                HashMap<String, String> postDataParams = new HashMap<String, String>();
+                postDataParams.put("data", args[0]);
+                Uri.Builder builder = new Uri.Builder()
+                        .appendQueryParameter("data", args[0]);
+                String query = builder.build().getEncodedQuery();
+
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                //System.out.println(getPostDataString(postDataParams));
+                //writer.write(getPostDataString(postDataParams));
+                System.out.println(query);
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+                conn.connect();
+
+               /* try( DataOutputStream wr = new DataOutputStream( httpCon.getOutputStream())) {
                     wr.write( postData.getBytes( StandardCharsets.UTF_8 ) );
                 }
-                resp = httpCon.getResponseMessage();
+                resp = httpCon.getResponseMessage(); */
+
+            String serv= Config.MY_IP+"uploads/";
+            URL url = new URL(serv+"suppr.php");
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("POST");
+            httpCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            httpCon.setRequestProperty("data", args[0]);
+            try( DataOutputStream wr = new DataOutputStream( httpCon.getOutputStream())) {
+                wr.write( ("data="+args[0]).getBytes( StandardCharsets.UTF_8 ) );
+                wr.flush();
+                wr.close();
+            }
+                httpCon.connect();
+            //resp = httpCon.getResponseMessage();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(getApplicationContext(), resp, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), resp, Toast.LENGTH_SHORT).show();
             return null;
         }
 
+    }
+
+    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException{
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for(Map.Entry<String, String> entry : params.entrySet()){
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
     }
 }

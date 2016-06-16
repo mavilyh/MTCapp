@@ -37,6 +37,7 @@ public class ScanTicket extends Activity {
     public static final int MEDIA_TYPE_IMAGE = 1;
 
     private Uri fileUri; // file url to store image/video
+    private String user;
 
     private Button btnCapturePicture;
     // Storage Permissions
@@ -51,7 +52,7 @@ public class ScanTicket extends Activity {
      *
      * If the app does not has permission then the user will be prompted to grant permissions
      *
-     * @param activity
+     * @param //activity
      */
    /* public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -71,6 +72,8 @@ public class ScanTicket extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanticket);
+        Intent intentOrigin = getIntent();
+        user = intentOrigin.getStringExtra("username");
 
         // Changing action bar background color
         // These two lines are not needed
@@ -184,6 +187,7 @@ public class ScanTicket extends Activity {
         Intent i = new Intent(ScanTicket.this, UploadActivity.class);
         i.putExtra("filePath", fileUri.getPath());
         i.putExtra("isImage", isImage);
+        i.putExtra("username", user);
         startActivity(i);
     }
 
@@ -220,12 +224,12 @@ public class ScanTicket extends Activity {
         }
 
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("dd-MM-yyyy",
+        String timeStamp = new SimpleDateFormat("_ddMMyyyy_HHmmss",
                 Locale.getDefault()).format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "Ticket_" + timeStamp + ".jpg");
+                    + user + timeStamp + ".jpg");
         } else {
             return null;
         }

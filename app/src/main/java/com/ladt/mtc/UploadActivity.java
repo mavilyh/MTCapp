@@ -45,6 +45,7 @@ public class UploadActivity extends Activity {
     private ImageView imgPreview;
     private VideoView vidPreview;
     private Button btnUpload;
+    private String user;
     long totalSize = 0;
 
     @Override
@@ -63,7 +64,7 @@ public class UploadActivity extends Activity {
 
         // Receiving the data from previous activity
         Intent i = getIntent();
-
+        user = i.getStringExtra("username");
         // image or video path that is captured in previous activity
         filePath = i.getStringExtra("filePath");
 
@@ -96,7 +97,7 @@ public class UploadActivity extends Activity {
         // Checking whether captured media is image or video
         if (isImage) {
             imgPreview.setVisibility(View.VISIBLE);
-            vidPreview.setVisibility(View.GONE);
+            //vidPreview.setVisibility(View.GONE);
             // bimatp factory
             BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -162,8 +163,8 @@ public class UploadActivity extends Activity {
 
                 // Extra parameters if you want to pass to server
                 entity.addPart("website",
-                        new StringBody("www.androidhive.info"));
-                entity.addPart("email", new StringBody("abc@gmail.com"));
+                        new StringBody("www.mtc-ladt.info"));
+                entity.addPart("email", new StringBody("mtc@gmail.com"));
 
                 totalSize = entity.getContentLength();
                 httppost.setEntity(entity);
@@ -199,6 +200,9 @@ public class UploadActivity extends Activity {
             showAlert(result);
 
             super.onPostExecute(result);
+            Intent intent = new Intent(UploadActivity.this, MainActivity.class);
+            intent.putExtra("username", user);
+            startActivity(intent);
         }
 
     }

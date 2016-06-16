@@ -6,6 +6,7 @@ package com.ladt.mtc;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -45,7 +46,9 @@ public class CodeBarreActivity extends AppCompatActivity {
 
         //Encode with a QR Code image
         //qrInputText = LoginActivity.getUsername();
-        qrInputText = "Laurent";
+        Intent intentOrigin = getIntent();
+        final String username = intentOrigin.getStringExtra("username");
+        qrInputText = username;
         QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrInputText,
                 null,
                 Contents.Type.TEXT,

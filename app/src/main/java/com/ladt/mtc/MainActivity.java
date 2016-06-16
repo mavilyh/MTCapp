@@ -27,17 +27,21 @@ public class MainActivity extends AppCompatActivity {
     Button _logoutButton;
     @BindView(R.id.btn_scan)
     Button _scanButton;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        Intent intentOrigin = getIntent();
+        username = intentOrigin.getStringExtra("username");
 
         _codebarreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CodeBarreActivity.class);
+                intent.putExtra("username", username);
                 startActivity(intent);
             }
         });
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, MesTicketsActivity.class);
+                intent.putExtra("username", username);
                 startActivity(intent);
             }
         });
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ScanTicket.class);
+                intent.putExtra("username", username);
                 startActivity(intent);
             }
         });

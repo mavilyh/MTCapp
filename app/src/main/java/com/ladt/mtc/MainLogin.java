@@ -39,8 +39,9 @@ public class MainLogin extends Activity
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         if(requestCode == RESULT_Main && resultCode == RESULT_CANCELED) {
-            Toast.makeText(getBaseContext(), "ARF!", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getBaseContext(), "WRONG!", Toast.LENGTH_LONG).show();
             startup(data);
+            //finish();
         }
         else {
             Toast.makeText(getBaseContext(), "BRAVO!", Toast.LENGTH_LONG).show();

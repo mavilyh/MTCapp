@@ -8,6 +8,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.StringTokenizer;
 
 import com.ladt.mtc.R;
 
@@ -38,11 +40,14 @@ public class MesTicketsActivity extends Activity {
     ProgressDialog pDialog;
     Bitmap bitmap;
     Button load_img;
+    private String user;
 
     List<String> tableauImages=  new ArrayList<String>();
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Intent intentOrigin = getIntent();
+        user = intentOrigin.getStringExtra("username");
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.main);
         //load_img = (Button)findViewById(R.id.load);
@@ -69,7 +74,7 @@ public class MesTicketsActivity extends Activity {
             try {
                 //StringBuffer result = new StringBuffer();
                 System.out.println("DOINBACKGROUND");
-                URL url = new URL("http://10.43.4.183:8888/AndroidFileUpload/imgList.php");
+                URL url = new URL(Config.MY_IP+"imgList.php");
                 URLConnection conn = url.openConnection();
                 HttpURLConnection httpConn = (HttpURLConnection) conn;
                 httpConn.setRequestMethod("GET");
@@ -81,10 +86,11 @@ public class MesTicketsActivity extends Activity {
                     BufferedReader buffer = new BufferedReader(reader);
                     String inputLine;
                     System.out.println("YEYEEEEE");
-                    int lineCount = 0;
-                    while ((lineCount < 10) && ((inputLine = buffer.readLine()) != null)) {
+                    //int lineCount = 0;
+                    //while ((lineCount < 10) && ((inputLine = buffer.readLine()) != null)) {
+                        while ( ((inputLine = buffer.readLine()) != null)) {
                         tableauImages.add(inputLine);
-                        lineCount++;
+                        //lineCount++;
                     }
 
                     buffer.close();
@@ -118,9 +124,16 @@ public class MesTicketsActivity extends Activity {
 
                 //Création d'une HashMap pour insérer les informations du premier item de notre listView
                 for (String s: tableauImages) {
-                    map = new HashMap<String, String>();
-                    map.put("titre", s);
-                    listItem.add(map);
+                    String[] compare = s.split("_");
+                    System.out.println(compare[0] + " =?= " + user );
+                    if (Objects.equals(compare[0], user)) {
+                        map = new HashMap<String, String>();
+                        map.put("titre", s);
+                        listItem.add(map);
+                    }
+                    else{
+                        System.out.println(s + " n'est pas un ticket de " + user);
+                    }
                 }
 
 
