@@ -140,7 +140,7 @@ public class MesTicketsActivity extends Activity {
 
                 //Création d'un SimpleAdapter qui se chargera de mettre les items présent dans notre list (listItem) dans la vue affichageitem
                 SimpleAdapter mSchedule = new SimpleAdapter (MesTicketsActivity.this, listItem, R.layout.affichageitem,
-                        new String[] {"titre", "description"}, new int[] { R.id.titre, R.id.description});
+                        new String[] {"titre", "description","img"}, new int[] { R.id.titre, R.id.description,R.id.imag});
 
                 //On attribut à notre listView l'adapter que l'on vient de créer
                 maListViewPerso.setAdapter(mSchedule);
