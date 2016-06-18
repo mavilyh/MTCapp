@@ -26,6 +26,7 @@
 
     <EditText
         android:id="@+id/username"
+        android:drawableLeft="@drawable/ic_person_black"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:singleLine="true"

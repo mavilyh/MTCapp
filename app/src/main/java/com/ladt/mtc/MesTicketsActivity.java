@@ -129,6 +129,7 @@ public class MesTicketsActivity extends Activity {
                     if (Objects.equals(compare[0], user)) {
                         map = new HashMap<String, String>();
                         map.put("titre", s);
+                        map.put("img", String.valueOf(R.drawable.ic_description_black_24dp));
                         listItem.add(map);
                     }
                     else{
